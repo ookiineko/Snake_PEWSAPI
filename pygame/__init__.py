@@ -98,11 +98,11 @@ class PyGamePEWSAPICompact(MCWSS):
         MCWSS.__init__(self, wss)
 
         self._tellraw_temp = 'tellraw @a {"rawtext":[{"text":"%s"}]}'
-        self._key_up = (0, 1, -4)
-        self._key_left = (-1, 0, -4)
-        self._key_down = (0, 0, -4)
-        self._key_right = (1, 0, -4)
-        self._key_f = (2, 2, -4)
+        self._key_up = (0, 2, -4)
+        self._key_left = (-1, 1, -4)
+        self._key_down = (0, 1, -4)
+        self._key_right = (1, 1, -4)
+        self._key_f = (0, -1, -4)
         self._keys = (
             self._key_up,
             self._key_left,
@@ -125,15 +125,13 @@ class PyGamePEWSAPICompact(MCWSS):
             K_f
         )
         self._key_map = dict(zip(self._key_names, self._key_codes))
-        self._game_bridge_pwr_pos = (1, 0, 3)
+        self._game_bridge_pwr_pos = (1, 2, 1)
         self._scr_width = 8
         self._scr_height = 6
         self._game_bridge_pwr_temp = 'setblock %s' % self._join_int(self._game_bridge_pwr_pos, ' ') + ' %s'
         self._player_selector = '@a[scores={flag=1},m=a]'
-        self._clear_cmd = 'clear %s' % self._player_selector
         self._as_selector = '@e[tag="!__PYGKAS"]'
         self._quit_cmds = (
-            self._clear_cmd,
             'gamemode c %s' % self._player_selector,
             self._game_bridge_pwr_temp % 'air',
             'execute %s ~~~ setblock ~~~1 air' % self._as_selector,
@@ -180,10 +178,7 @@ class PyGamePEWSAPICompact(MCWSS):
                 'title @a times 0 0 0',
                 self._game_bridge_pwr_temp % 'redstone_block',
                 'gamemode a @a[scores={flag=1},m=c]',
-                self._clear_cmd,
-                'replaceitem entity %s slot.hotbar 0 stick 1 0 {"can_destroy":{' % self._player_selector +
-                '"blocks":["tripwire","barrier"]}}',
-                'tp %s 0.99999 0 0 facing 0.99999 2 -99999' % self._player_selector,
+                'tp %s 0 0 0 facing 0 2 -99999' % self._player_selector,
                 self._tellraw_temp % 'pygame_PEWSAPI %s (pyMCWSS %s, Python %s)' % (
                     pymcwss_ver,
                     __version__,
