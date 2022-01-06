@@ -3,8 +3,7 @@
 PyGame wrapper
 """
 
-from asyncio import new_event_loop, set_event_loop
-from asyncio import sleep as asyncio_sleep
+from asyncio import new_event_loop, set_event_loop, run
 from socket import socket, error, AF_INET, SOCK_DGRAM
 from sys import version_info
 from threading import Thread
@@ -56,6 +55,7 @@ class PyGamePEWSAPICompact(MCWSS):
         def __init__(self):
             self.waiting = True
             self.__event_queue = []
+            self.__wss = None
 
         def add_event(self, new: Event):
             """
@@ -71,11 +71,31 @@ class PyGamePEWSAPICompact(MCWSS):
             self.__event_queue.clear()
             return events
 
+        def set_wss(self, wss: WebSocketServerProtocol):
+            """
+            set WebSocket server
+            """
+            self.__wss = wss
+
+        def send_block(self, packet: dict):
+            """
+            send packet (blocking)
+            """
+            run(self.__wss.send(packet))
+
+        def send(self, packet: dict):
+            """
+            send packet (non-blocking)
+            """
+            send_thread = Thread(target=self.send_block, args=[packet])
+            send_thread.setDaemon(True)
+            send_thread.start()
+
     def __init__(
             self,
-            ws: WebSocketServerProtocol
+            wss: WebSocketServerProtocol
     ):
-        MCWSS.__init__(self, ws)
+        MCWSS.__init__(self, wss)
 
         self._tellraw_temp = 'tellraw @a {"rawtext":[{"text":"%s"}]}'
         self._key_up = (0, 1, -4)
@@ -115,9 +135,9 @@ class PyGamePEWSAPICompact(MCWSS):
         self._quit_cmds = (
             self._clear_cmd,
             'gamemode c %s' % self._player_selector,
-            'execute %s ~~~ setblock ~~~1 air' % self._as_selector,
-            'kill %s' % self._as_selector,
             self._game_bridge_pwr_temp % 'air',
+            'execute %s ~~~ setblock ~~~1 air' % self._as_selector,
+            'tp %s 0 -14514 0' % self._as_selector,
             'title @a reset',
             'closewebsocket'
         )
@@ -148,19 +168,17 @@ class PyGamePEWSAPICompact(MCWSS):
         for packet in packets:
             await self.send(packet)
         cmds = [
-            'title @a times 0 0 0',
-            self._game_bridge_pwr_temp % 'redstone_block'
         ]
         for key_pos, key_name in zip(self._keys, self._key_names):
-            x, y, z = key_pos
-            pos = (x, y, z + 1)
             as_name = '!__PYGEKD#' + key_name
-            cmds.append('setblock %s tripwire 0 keep' % self._join_int(pos, ' '))
             cmds.append('summon armor_stand "%s" %s' % (as_name, self._join_int(key_pos, ' ')))
             cmds.append('tag @e[name="%s",c=1] add "!__PYGKAS"' % as_name)
         cmds.extend(
             [
                 'effect %s invisibility 99999 255 true' % self._as_selector,
+                'execute %s ~~~ setblock ~~~1 tripwire 0 keep' % self._as_selector,
+                'title @a times 0 0 0',
+                self._game_bridge_pwr_temp % 'redstone_block',
                 'gamemode a @a[scores={flag=1},m=c]',
                 self._clear_cmd,
                 'replaceitem entity %s slot.hotbar 0 stick 1 0 {"can_destroy":{' % self._player_selector +
@@ -177,7 +195,7 @@ class PyGamePEWSAPICompact(MCWSS):
         for cmd in cmds:
             packet = gen_cmd(cmd)
             await self.send(packet)
-        await asyncio_sleep(2)
+        self.__bridge.set_wss(self)
         self.__bridge.waiting = False
 
     async def on_dc(self):
@@ -223,7 +241,6 @@ class PyGamePEWSAPICompact(MCWSS):
                                 for quit_cmd in self._quit_cmds:
                                     packet = gen_cmd(quit_cmd)
                                     await self.send(packet)
-                                await asyncio_sleep(2)
                                 new = Event(QUIT)
                                 self.__bridge.add_event(new)
 
@@ -236,7 +253,7 @@ def __start_pygame():
 
 def __watch_dog(bridge: PyGamePEWSAPICompact.Bridge):
     while bridge.waiting:
-        sleep(2)
+        sleep(0.05)
 
 
 def init():

@@ -4,7 +4,6 @@ surface
 """
 
 
-# stub
 class Surface(object):
     """
     surface
@@ -13,18 +12,21 @@ class Surface(object):
     def __init__(self, width: int, height: int):
         self.width = width
         self.height = height
+        print('stub surface instantiation')
 
-    def fill(self, _color: (int, int, int, int)):
+    @classmethod
+    def fill(cls, _color: (int, int, int, int)):
         """
         fill
         """
-        pass
+        print('stub surface fill')
 
-    def blit(self, _source: object, _pos: (int, int)):
+    @classmethod
+    def blit(cls, _source: object, _pos: (int, int)):
         """
         blit
         """
-        pass
+        print('stub surface blit')
 
     def get_width(self) -> int:
         """

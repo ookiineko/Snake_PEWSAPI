@@ -6,12 +6,11 @@ display
 from pygame.surface import Surface
 
 
-# stubs
-
 def set_mode(_size: tuple) -> Surface:
     """
     set size
     """
+    print('stub set_mode')
     return Surface(*_size)
 
 
@@ -19,11 +18,11 @@ def set_caption(_caption: str):
     """
     set caption
     """
-    pass
+    print('stub set_caption')
 
 
 def update():
     """
     update
     """
-    pass
+    print('stub update')
