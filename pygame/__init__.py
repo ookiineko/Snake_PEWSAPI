@@ -342,8 +342,7 @@ def init():
     pygame_start_thread = Thread(target=PyGamePEWSAPICompact.pygame_start, args=[14514, bridge])
     pygame_start_thread.setDaemon(True)
     pygame_start_thread.start()
-    while bridge.waiting:
-        sleep(2)
+    __watch_dog(bridge)
     bridge.waiting = True
     watch_dog_thread = Thread(target=__watch_dog, args=[bridge])
     watch_dog_thread.start()
