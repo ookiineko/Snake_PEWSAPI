@@ -14,7 +14,7 @@ class Surface(object):
         self.width = width
         self.height = height
 
-    def fill(self, _color: (int, int, int)):
+    def fill(self, _color: (int, int, int, int)):
         """
         fill
         """

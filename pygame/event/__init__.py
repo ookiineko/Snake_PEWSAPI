@@ -20,12 +20,7 @@ def get() -> List[Event]:
     """
     get event
     """
-    from pygame import PyGameSocket
+    import pygame.__bridge__
 
-    client = PyGameSocket()
-    result = []
-    status = client.connect()
-    if status:
-        result = client.get_event_list()
-    client.close()
-    return result
+    bridge = pygame.__bridge__.default_bridge
+    return bridge.get_events()

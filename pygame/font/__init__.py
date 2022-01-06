@@ -12,7 +12,7 @@ class DummyFontSurface(Surface):
     dummy font surface
     """
 
-    def __init__(self, _text: str, _antialias: bool, _font_color: (int, int, int)):
+    def __init__(self, _text: str, _antialias: bool, _font_color: (int, int, int, int)):
         Surface.__init__(self, 0, 0)
         self.text = _text
         self.antialias = _antialias
@@ -27,7 +27,8 @@ class Font(object):
     def __init__(self, _name: str, _size: int):
         pass
 
-    def render(self, _text: str, _antialias: bool, _font_color: (int, int, int)) -> Surface:
+    @classmethod
+    def render(cls, _text: str, _antialias: bool, _font_color: (int, int, int, int)) -> Surface:
         """
         render the font
         """

@@ -8,7 +8,7 @@ from pygame.surface import Surface
 
 # stubs
 
-def set_mode(_size: tuple):
+def set_mode(_size: tuple) -> Surface:
     """
     set size
     """

@@ -7,7 +7,7 @@ from pygame.surface import Surface
 
 
 # stub
-def rect(surface: Surface, color: (int, int, int), rect: Rect, pos: (int, int) = (0, 0)):
+def rect(_surface: Surface, _color: (int, int, int, int), _rect: Rect, _pos: (int, int) = (0, 0)):
     """
     draw rect
     """

@@ -8,8 +8,8 @@ Snake (PyGame-based) port for Minecraft:Bedrock Edition using PEWSAPI
 
 - [ ] pygame
     - [x] init
-    - [ ] color
-        - [ ] THECOLORS
+    - [x] color
+        - [x] THECOLORS
     - [x] constants
     - [ ] display
         - [ ] set_mode
