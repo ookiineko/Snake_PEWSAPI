@@ -23,4 +23,6 @@ def get() -> List[Event]:
     import pygame.__bridge__
 
     bridge = pygame.__bridge__.default_bridge
-    return bridge.get_events()
+    events = bridge.event_queue.copy()
+    bridge.event_queue = []
+    return events

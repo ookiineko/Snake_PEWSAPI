@@ -12,4 +12,4 @@ class Rect(object):
     def __init__(self, _pos: (int, int), _size: (int, int)):
         self.pos = _pos
         self.size = _size
-        print('stub rect instantiation')
+        # print('stub rect instantiation')

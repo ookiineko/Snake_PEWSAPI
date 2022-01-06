@@ -13,7 +13,7 @@ Snake (PyGame-based) port for Minecraft:Bedrock Edition using PEWSAPI
     - [x] constants
     - [ ] display
         - [ ] set_mode
-        - [ ] set_caption
+        - [x] set_caption
         - [ ] update
     - [ ] draw
         - [ ] rect

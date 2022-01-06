@@ -9,18 +9,20 @@ from sys import version_info
 from threading import Thread
 from time import sleep
 from traceback import format_exc
-from typing import Iterable, List
+from typing import Iterable
 
 from pymcwss import __version__ as pymcwss_ver
 from pymcwss.mcwss import MCWSS
 from pymcwss.pewsapi import gen_sub, event_player_msg, get_head, \
     get_msg_purpose, purpose_event, get_body, get_event_name, \
     get_prop, get_msg_type, msg_chat, gen_cmd, gen_all_subs, \
-    msg_title, par_player_msg
+    msg_title, par_player_msg, purpose_cmd_resp, purpose_error, \
+    par_cmd_resp_or_error
 from websockets.legacy.server import WebSocketServerProtocol
 
 from pygame.constants import QUIT, KEYDOWN, K_UP, K_LEFT, K_DOWN, K_RIGHT, K_f
 from pygame.event import Event
+from pygame.surface import Surface
 
 __version__ = '0.0.1'
 
@@ -54,22 +56,9 @@ class PyGamePEWSAPICompact(MCWSS):
 
         def __init__(self):
             self.waiting = True
-            self.__event_queue = []
+            self.event_queue = []
             self.__wss = None
-
-        def add_event(self, new: Event):
-            """
-            add a new event to the queue
-            """
-            self.__event_queue.append(new)
-
-        def get_events(self) -> List[Event]:
-            """
-            get events from the queue
-            """
-            events = self.__event_queue.copy()
-            self.__event_queue.clear()
-            return events
+            self.window = None
 
         def set_wss(self, wss: WebSocketServerProtocol):
             """
@@ -132,11 +121,13 @@ class PyGamePEWSAPICompact(MCWSS):
         self._player_selector = '@a[scores={flag=1},m=a]'
         self._as_selector = '@e[tag="!__PYGKAS"]'
         self._quit_cmds = (
+            'effect %s clear' % self._player_selector,
             'gamemode c %s' % self._player_selector,
             self._game_bridge_pwr_temp % 'air',
             'execute %s ~~~ setblock ~~~1 air' % self._as_selector,
             'tp %s 0 -14514 0' % self._as_selector,
             'title @a reset',
+            'scoreboard objectives remove "!__PYGCSO"',
             'closewebsocket'
         )
 
@@ -148,11 +139,11 @@ class PyGamePEWSAPICompact(MCWSS):
         self.__bridge = pygame.__bridge__.default_bridge
 
     @classmethod
-    def on_start(cls, _host: str, port: int):
+    def on_start(cls, host: str, port: int):
         """
         on server start
         """
-        MCWSS.on_start(_host, port)
+        MCWSS.on_start(host, port)
         print('/connect %s:%d' % (cls._get_lan_ip(), port))
 
     async def on_conn(self):
@@ -178,6 +169,7 @@ class PyGamePEWSAPICompact(MCWSS):
                 'title @a times 0 0 0',
                 self._game_bridge_pwr_temp % 'redstone_block',
                 'gamemode a @a[scores={flag=1},m=c]',
+                'effect %s night_vision 99999 255 true' % self._player_selector,
                 'tp %s 0 0 0 facing 0 2 -99999' % self._player_selector,
                 self._tellraw_temp % 'pygame_PEWSAPI %s (pyMCWSS %s, Python %s)' % (
                     pymcwss_ver,
@@ -208,36 +200,41 @@ class PyGamePEWSAPICompact(MCWSS):
         await MCWSS.on_recv(self, packet)
         head = get_head(packet)
         msg_purpose = get_msg_purpose(head)
-        if msg_purpose == purpose_event:
+        if msg_purpose in (purpose_event, purpose_cmd_resp, purpose_error):
             body = get_body(packet)
-            event_name = get_event_name(body)
-            if event_name == event_player_msg:
-                prop = get_prop(body)
-                msg_type = get_msg_type(prop)
-                if msg_type in (msg_title, msg_chat):
-                    _, _, msg = par_player_msg(prop)
-                    if msg.startswith('!__'):
-                        cmd = msg[3:]
-                        if msg_type == msg_title:
-                            if cmd.startswith('PYGE'):
-                                args = cmd[4:].split('#')
-                                pygame_event_type = args[0]
-                                if pygame_event_type == QUIT:
-                                    print('force quit is not allowed')
-                                    return
-                                new = Event(pygame_event_type)
-                                if pygame_event_type == KEYDOWN:
-                                    key = args[1]
-                                    if key in self._key_names:
-                                        new.key = key
-                                self.__bridge.add_event(new)
-                        elif msg_type == msg_chat:
-                            if cmd == 'quitpygame':
-                                for quit_cmd in self._quit_cmds:
-                                    packet = gen_cmd(quit_cmd)
-                                    await self.send(packet)
-                                new = Event(QUIT)
-                                self.__bridge.add_event(new)
+            if msg_purpose == purpose_event:
+                event_name = get_event_name(body)
+                if event_name == event_player_msg:
+                    prop = get_prop(body)
+                    msg_type = get_msg_type(prop)
+                    if msg_type in (msg_title, msg_chat):
+                        _, _, msg = par_player_msg(prop)
+                        if msg.startswith('!__'):
+                            cmd = msg[3:]
+                            if msg_type == msg_title:
+                                if cmd.startswith('PYGE'):
+                                    args = cmd[4:].split('#')
+                                    pygame_event_type = args[0]
+                                    if pygame_event_type == QUIT:
+                                        print('force quit is not allowed')
+                                        return
+                                    new = Event(pygame_event_type)
+                                    if pygame_event_type == KEYDOWN:
+                                        key = args[1]
+                                        if key in self._key_names:
+                                            new.key = key
+                                    self.__bridge.event_queue.append(new)
+                            elif msg_type == msg_chat:
+                                if cmd == 'quitpygame':
+                                    for quit_cmd in self._quit_cmds:
+                                        packet = gen_cmd(quit_cmd)
+                                        await self.send(packet)
+                                    new = Event(QUIT)
+                                    self.__bridge.event_queue.append(new)
+            else:
+                status_code, status_msg = par_cmd_resp_or_error(body)
+                if status_code < 0:
+                    print(status_msg)
 
 
 def __start_pygame():

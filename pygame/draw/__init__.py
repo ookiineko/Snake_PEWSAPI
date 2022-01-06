@@ -10,4 +10,4 @@ def rect(_surface: Surface, _color: (int, int, int, int), _rect: Rect, _pos: (in
     """
     draw rect
     """
-    print('stub draw rect')
+    # print('stub draw rect')

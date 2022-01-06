@@ -3,39 +3,41 @@
 surface
 """
 
+from pygame.color import THECOLORS
 
-class Surface(object):
-    """
-    surface
-    """
 
-    def __init__(self, width: int, height: int):
-        self.width = width
-        self.height = height
-        print('stub surface instantiation')
+class _BaseSurface:
+    def __init__(self, size: (int, int)):
+        self.__size = size
+        self.__bgc = THECOLORS.get('black')
+        self._children = []
 
-    @classmethod
-    def fill(cls, _color: (int, int, int, int)):
+    def fill(self, color: (int, int, int, int)):
         """
         fill
         """
-        print('stub surface fill')
-
-    @classmethod
-    def blit(cls, _source: object, _pos: (int, int)):
-        """
-        blit
-        """
-        print('stub surface blit')
+        self._children = []
+        self.__bgc = color
 
     def get_width(self) -> int:
         """
         get width
         """
-        return self.width
+        return self.__size[0]
 
     def get_height(self) -> int:
         """
         get height
         """
-        return self.height
+        return self.__size[1]
+
+
+class Surface(_BaseSurface):
+    """
+    surface
+    """
+    def blit(self, source: _BaseSurface, pos: (int, int)):
+        """
+        blit
+        """
+        self._children.append((source, pos))

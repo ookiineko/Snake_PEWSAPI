@@ -12,22 +12,23 @@ class Font(object):
     """
 
     def __init__(self, _name: str, _size: int):
-        print('stub font instantiation')
+        # print('stub font instantiation')
+        pass
 
     @classmethod
     def render(cls, _text: str, _antialias: bool, _font_color: (int, int, int, int)) -> Surface:
         """
         render the font
         """
-        print('stub font render')
-        return Surface(0, 0)
+        # print('stub font render')
+        return Surface((0, 0))
 
 
 def get_default_font() -> str:
     """
     get game default font
     """
-    print('stub get_default_font')
+    # print('stub get_default_font')
     return 'Mojangles'
 
 
@@ -35,4 +36,4 @@ def init():
     """
     init font
     """
-    print('stub font init')
+    # print('stub font init')
