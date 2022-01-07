@@ -3,17 +3,13 @@
 display
 """
 
-from pymcwss.pewsapi import gen_cmd, get_body, body_cmdline
-
-from pygame.surface import Surface
+from pymcwss.pewsapi import gen_cmd
 
 from pygame.color import my_color_map
+from pygame.surface import Surface
 
-
-my_w_limit = 128
-my_h_limit = 128
-my_scr_left_top_x = -64
-my_scr_left_top_y = -64
+my_w_limit = my_h_limit = 128
+my_scr_left_top_x = my_scr_left_top_y = -64
 
 
 def set_mode(size: tuple) -> Surface:
@@ -26,8 +22,8 @@ def set_mode(size: tuple) -> Surface:
     if bridge.window:
         raise TypeError('multiple windows is not supported yet')
     w, h = size
-    x_scale = 128 / w if w > my_w_limit else 1
-    y_scale = 128 / h if h > my_h_limit else 1
+    x_scale = my_w_limit / w if w > my_w_limit else 1
+    y_scale = my_h_limit / h if h > my_h_limit else 1
     window = Surface(size, x_scale, y_scale)
     bridge.window = window
     return window

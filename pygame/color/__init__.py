@@ -5,7 +5,6 @@ color
 
 from typing import Tuple
 
-
 my_color = Tuple[int, int, int, int]
 
 my_black = (

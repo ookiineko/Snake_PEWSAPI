@@ -5,7 +5,6 @@ font
 
 from typing import Tuple
 
-
 my_pos = Tuple[int, int]
 
 

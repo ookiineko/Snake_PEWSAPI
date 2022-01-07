@@ -7,7 +7,6 @@ from typing import List, Tuple, Union
 from pygame.color import THECOLORS, my_color
 from pygame.rect import my_pos
 
-
 my_rect = Tuple[my_pos, my_pos, my_color]
 
 
@@ -15,6 +14,7 @@ class MyBaseSurface:
     """
     my base surface
     """
+
     def __init__(
             self,
             size: my_pos,
