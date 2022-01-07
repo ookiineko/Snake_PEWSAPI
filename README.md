@@ -11,12 +11,12 @@ Snake (PyGame-based) port for Minecraft:Bedrock Edition using PEWSAPI
     - [x] color
         - [x] THECOLORS
     - [x] constants
-    - [ ] display
-        - [ ] set_mode
+    - [x] display (preview)
+        - [x] set_mode (preview)
         - [x] set_caption
-        - [ ] update
-    - [ ] draw
-        - [ ] rect
+        - [x] update (preview)
+    - [x] draw (preview)
+        - [x] rect (preview)
     - [x] event
         - [x] get
         - [x] Event
@@ -24,10 +24,9 @@ Snake (PyGame-based) port for Minecraft:Bedrock Edition using PEWSAPI
         - [ ] init
         - [ ] Font
         - [ ] get_default_font
-    - [ ] rect
-        - [ ] Rect
-    - [ ] surface
-        - [ ] Surface
+    - [x] rect (preview)
+        - [x] Rect (preview)
+    - [x] surface (preview)
+        - [x] Surface (preview)
     - [x] time
         - [x] Clock
-

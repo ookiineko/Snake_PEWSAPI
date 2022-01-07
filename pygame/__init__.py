@@ -72,14 +72,6 @@ class PyGamePEWSAPICompact(MCWSS):
             """
             run(self.__wss.send(packet))
 
-        def send(self, packet: dict):
-            """
-            send packet (non-blocking)
-            """
-            send_thread = Thread(target=self.send_block, args=[packet])
-            send_thread.setDaemon(True)
-            send_thread.start()
-
     def __init__(
             self,
             wss: WebSocketServerProtocol

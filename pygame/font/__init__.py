@@ -3,6 +3,7 @@
 font
 """
 
+from pygame.color import my_color
 from pygame.surface import Surface
 
 
@@ -16,7 +17,7 @@ class Font(object):
         pass
 
     @classmethod
-    def render(cls, _text: str, _antialias: bool, _font_color: (int, int, int, int)) -> Surface:
+    def render(cls, _text: str, _antialias: bool, _font_color: my_color) -> Surface:
         """
         render the font
         """
@@ -24,11 +25,12 @@ class Font(object):
         return Surface((0, 0))
 
 
+# stubs
+
 def get_default_font() -> str:
     """
     get game default font
     """
-    # print('stub get_default_font')
     return 'Mojangles'
 
 
@@ -36,4 +38,3 @@ def init():
     """
     init font
     """
-    # print('stub font init')
