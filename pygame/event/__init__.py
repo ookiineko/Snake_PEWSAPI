@@ -5,6 +5,8 @@ event
 
 from typing import List
 
+from pygame.__bridge__ import my_test_bridge
+
 
 class Event(object):
     """
@@ -23,6 +25,7 @@ def get() -> List[Event]:
     import pygame.__bridge__
 
     bridge = pygame.__bridge__.default_bridge
+    my_test_bridge(bridge)
     events = bridge.event_queue.copy()
     bridge.event_queue = []
     return events

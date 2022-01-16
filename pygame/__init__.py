@@ -3,7 +3,7 @@
 PyGame wrapper
 """
 
-from asyncio import new_event_loop, set_event_loop, run
+from asyncio import new_event_loop, set_event_loop
 from socket import socket, error, AF_INET, SOCK_DGRAM
 from sys import version_info
 from threading import Thread
@@ -20,11 +20,14 @@ from pymcwss.pewsapi import gen_sub, event_player_msg, get_head, \
     par_cmd_resp_or_error
 from websockets.legacy.server import WebSocketServerProtocol
 
+from pygame.__bridge__ import my_test_bridge, Bridge
 from pygame.constants import QUIT, KEYDOWN, K_UP, K_LEFT, K_DOWN, K_RIGHT, K_f
 from pygame.event import Event
 from pygame.surface import Surface
+from pygame.time import one_second, game_tick_per_second
 
 __version__ = '0.0.1'
+one_game_tick = one_second / game_tick_per_second
 
 
 class PyGamePEWSAPICompact(MCWSS):
@@ -48,31 +51,6 @@ class PyGamePEWSAPICompact(MCWSS):
     @classmethod
     def _join_int(cls, iterable: Iterable, s: str) -> str:
         return s.join([str(x) for x in iterable])
-
-    class Bridge:
-        """
-        bridge
-        """
-
-        def __init__(self):
-            self.waiting = True
-            self.event_queue = []
-            self.__wss = None
-            self.window = None
-
-        def set_wss(self, wss: WebSocketServerProtocol):
-            """
-            set WebSocket server
-            """
-            if not self.__wss:
-                self.__wss = wss
-
-        def send_block(self, packet: dict):
-            """
-            send packet (blocking)
-            """
-            if self.__wss:
-                run(self.__wss.send(packet))
 
     def __init__(
             self,
@@ -131,6 +109,7 @@ class PyGamePEWSAPICompact(MCWSS):
             event_player_msg
         }
         self.__bridge = pygame.__bridge__.default_bridge
+        my_test_bridge(self.__bridge)
 
     @classmethod
     def on_start(cls, host: str, port: int):
@@ -210,7 +189,7 @@ class PyGamePEWSAPICompact(MCWSS):
                                     args = cmd[4:].split('#')
                                     pygame_event_type = args[0]
                                     if pygame_event_type == QUIT:
-                                        print('force quit is not allowed')
+                                        print('force quit will cause issues, not allowed here')
                                         return
                                     new = Event(pygame_event_type)
                                     if pygame_event_type == KEYDOWN:
@@ -235,9 +214,9 @@ def __start_pygame():
     PyGamePEWSAPICompact.start(14514, event_loop=event_loop)
 
 
-def __watch_dog(bridge: PyGamePEWSAPICompact.Bridge):
+def __watch_dog(bridge: Bridge):
     while bridge.waiting:
-        sleep(0.05)
+        sleep(one_game_tick)
 
 
 def init():
@@ -246,7 +225,10 @@ def init():
     """
     import pygame.__bridge__
 
-    bridge = PyGamePEWSAPICompact.Bridge()
+    bridge = Bridge()
+    default_bridge = pygame.__bridge__.default_bridge
+    if default_bridge:
+        raise TypeError('PyGame is already initialized')
     pygame.__bridge__.default_bridge = bridge
     pygame_start_thread = Thread(target=__start_pygame)
     pygame_start_thread.setDaemon(True)

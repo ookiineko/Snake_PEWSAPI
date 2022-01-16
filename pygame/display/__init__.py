@@ -5,6 +5,7 @@ display
 
 from pymcwss.pewsapi import gen_cmd
 
+from pygame.__bridge__ import my_test_bridge
 from pygame.color import my_color_map
 from pygame.surface import Surface
 
@@ -19,6 +20,7 @@ def set_mode(size: tuple) -> Surface:
     import pygame.__bridge__
 
     bridge = pygame.__bridge__.default_bridge
+    my_test_bridge(bridge)
     if bridge.window:
         raise TypeError('multiple windows is not supported yet')
     w, h = size
@@ -36,6 +38,7 @@ def set_caption(caption: str):
     import pygame.__bridge__
 
     bridge = pygame.__bridge__.default_bridge
+    my_test_bridge(bridge)
     for cmd in (
             'scoreboard objectives remove "!__PYGCSO"',
             'scoreboard objectives add "!__PYGCSO" dummy "%s"' % caption,
@@ -55,6 +58,7 @@ def update():
     import pygame.__bridge__
 
     bridge = pygame.__bridge__.default_bridge
+    my_test_bridge(bridge)
     window = bridge.window
     pos = (0, 0)
     rects = window.my_draw(pos)
