@@ -20,7 +20,7 @@ from pymcwss.pewsapi import gen_sub, event_player_msg, get_head, \
     par_cmd_resp_or_error
 from websockets.legacy.server import WebSocketServerProtocol
 
-from pygame.__bridge__ import my_test_bridge, Bridge
+from pygame.__bridge__ import my_test_bridge, my_test_bridge_waiting, Bridge
 from pygame.constants import QUIT, KEYDOWN, K_UP, K_LEFT, K_DOWN, K_RIGHT, K_f
 from pygame.event import Event
 from pygame.surface import Surface
@@ -153,6 +153,8 @@ class PyGamePEWSAPICompact(MCWSS):
         for cmd in cmds:
             packet = gen_cmd(cmd)
             await self.send(packet)
+        my_test_bridge(self.__bridge)
+        my_test_bridge_waiting(self.__bridge)
         self.__bridge.set_wss(self)
         self.__bridge.waiting = False
 
@@ -163,6 +165,8 @@ class PyGamePEWSAPICompact(MCWSS):
         await MCWSS.on_dc(self)
         print('Minecraft disconnected')
         new = Event(QUIT)
+        my_test_bridge(self.__bridge)
+        my_test_bridge_waiting(self.__bridge)
         self.__bridge.event_queue.append(new)
         self.__bridge.waiting = False
 
@@ -196,6 +200,7 @@ class PyGamePEWSAPICompact(MCWSS):
                                         key = args[1]
                                         if key in self._key_names:
                                             new.key = key
+                                    my_test_bridge(self.__bridge)
                                     self.__bridge.event_queue.append(new)
                             elif msg_type == msg_chat:
                                 if cmd == 'quitpygame':
@@ -217,6 +222,7 @@ def __start_pygame():
 def __watch_dog(bridge: Bridge):
     while bridge.waiting:
         sleep(one_game_tick)
+    sleep(one_second)
 
 
 def init():

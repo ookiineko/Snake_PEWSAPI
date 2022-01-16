@@ -43,3 +43,11 @@ def my_test_bridge(bridge: Bridge):
     """
     if not bridge:
         raise ValueError('PyGame is not initialized')
+
+
+def my_test_bridge_waiting(bridge: Bridge):
+    """
+    my test bridge waiting
+    """
+    if not bridge.waiting:
+        raise TypeError('Bridge is not waiting')
