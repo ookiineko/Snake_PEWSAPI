@@ -15,8 +15,8 @@ from pymcwss import __version__ as pymcwss_ver
 from pymcwss.mcwss import MCWSS
 from pymcwss.pewsapi import gen_sub, event_player_msg, get_head, \
     get_msg_purpose, purpose_event, get_body, get_event_name, \
-    get_prop, get_msg_type, msg_chat, gen_cmd, gen_all_subs, \
-    msg_title, par_player_msg, purpose_cmd_resp, purpose_error, \
+    get_prop, get_msg_type, msg_chat, gen_cmd, msg_title, \
+    par_player_msg, purpose_cmd_resp, purpose_error, \
     par_cmd_resp_or_error
 from websockets.legacy.server import WebSocketServerProtocol
 
@@ -64,13 +64,15 @@ class PyGamePEWSAPICompact(MCWSS):
             """
             set WebSocket server
             """
-            self.__wss = wss
+            if not self.__wss:
+                self.__wss = wss
 
         def send_block(self, packet: dict):
             """
             send packet (blocking)
             """
-            run(self.__wss.send(packet))
+            if self.__wss:
+                run(self.__wss.send(packet))
 
     def __init__(
             self,
@@ -144,9 +146,7 @@ class PyGamePEWSAPICompact(MCWSS):
         """
         await MCWSS.on_conn(self)
         print('Minecraft connected')
-        packets = gen_all_subs(self.__subs, True)
-        packets.extend([gen_sub(sub) for sub in self.__subs])
-        for packet in packets:
+        for packet in [gen_sub(sub) for sub in self.__subs]:
             await self.send(packet)
         cmds = [
         ]
@@ -183,6 +183,8 @@ class PyGamePEWSAPICompact(MCWSS):
         """
         await MCWSS.on_dc(self)
         print('Minecraft disconnected')
+        new = Event(QUIT)
+        self.__bridge.event_queue.append(new)
         self.__bridge.waiting = False
 
     async def on_recv(self, packet: dict):
@@ -221,8 +223,6 @@ class PyGamePEWSAPICompact(MCWSS):
                                     for quit_cmd in self._quit_cmds:
                                         packet = gen_cmd(quit_cmd)
                                         await self.send(packet)
-                                    new = Event(QUIT)
-                                    self.__bridge.event_queue.append(new)
             else:
                 status_code, status_msg = par_cmd_resp_or_error(body)
                 if status_code < 0:

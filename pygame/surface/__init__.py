@@ -44,24 +44,23 @@ class MyBaseSurface:
         my draw rect
         """
         w, h = self.__size
-        if w < 0 or h < 0:
-            return
-        if x_scale < 0:
-            x_scale = self.__x_scale
-        if y_scale < 0:
-            y_scale = self.__y_scale
-        x, y = pos
-        sx = x * x_scale
-        sy = y * x_scale
-        sp = int(sx), int(sy)
-        sw = w * x_scale
-        sh = h * y_scale
-        pos1 = int(sx + sw) - 1, int(sy + sh) - 1
-        return (
-            sp,
-            pos1,
-            self.__bgc
-        )
+        if w > 0 and h > 0:
+            if x_scale < 0:
+                x_scale = self.__x_scale
+            if y_scale < 0:
+                y_scale = self.__y_scale
+            x, y = pos
+            sx = x * x_scale
+            sy = y * x_scale
+            sp = int(sx), int(sy)
+            sw = w * x_scale
+            sh = h * y_scale
+            pos1 = int(sx + sw) - 1, int(sy + sh) - 1
+            return (
+                sp,
+                pos1,
+                self.__bgc
+            )
 
     def my_draw(
             self,
@@ -76,17 +75,17 @@ class MyBaseSurface:
             x_scale = self.__x_scale
         if y_scale < 0:
             y_scale = self.__y_scale
+        rects = []
         rect = self.my_draw_rect(pos, x_scale, y_scale)
-        rects = [
-            rect
-        ]
-        x, y = pos
-        for c, cp in self.my_children:
-            cx, cy = cp
-            cdp = (x + cx, y + cy)
-            crs = c.my_draw(cdp, x_scale, y_scale)
-            if crs:
-                rects.extend(crs)
+        if rect:
+            rects.append(rect)
+            x, y = pos
+            for c, cp in self.my_children:
+                cx, cy = cp
+                cdp = (x + cx, y + cy)
+                crs = c.my_draw(cdp, x_scale, y_scale)
+                if crs:
+                    rects.extend(crs)
         return rects
 
     def get_width(self) -> int:
@@ -111,5 +110,14 @@ class Surface(MyBaseSurface):
         """
         blit
         """
+        x, y = pos
+        if x < 0 or y < 0:
+            return
+        w = src.get_width()
+        h = src.get_height()
+        x1 = x + w
+        y1 = y + h
+        if x1 > self.get_width() or y1 > self.get_height():
+            return
         child = (src, pos)
         self.my_children.append(child)

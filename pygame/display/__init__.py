@@ -58,7 +58,6 @@ def update():
     window = bridge.window
     pos = (0, 0)
     rects = window.my_draw(pos)
-    packets = []
     for pos, pos1, color in rects:
         x, y = pos
         ox = my_scr_left_top_x + x
@@ -70,6 +69,4 @@ def update():
         op1 = ox1, oy1
         cmd = my_fill_temp % (*op, *op1, my_color_map.get(color, 0))
         packet = gen_cmd(cmd)
-        packets.append(packet)
-    for packet in packets:
         bridge.send_block(packet)

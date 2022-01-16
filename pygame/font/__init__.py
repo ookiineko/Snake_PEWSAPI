@@ -7,13 +7,14 @@ from pygame.color import my_color
 from pygame.surface import Surface
 
 
+# stubs
+
 class Font(object):
     """
     game font
     """
 
     def __init__(self, _name: str, _size: int):
-        # print('stub font instantiation')
         pass
 
     @classmethod
@@ -21,11 +22,8 @@ class Font(object):
         """
         render the font
         """
-        # print('stub font render')
         return Surface((0, 0))
 
-
-# stubs
 
 def get_default_font() -> str:
     """
